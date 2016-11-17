@@ -1,10 +1,8 @@
-`
-` THIS AREA IS AN EXAMPLE OF THE SYNTAX
-`
+`this is a test comment`
 function main() {
 
     number test = 5;
-    number test2 = 10;
+    number test2 = 10.3;
     number x = test * test2;
 
     createImage("assets/block.png", "player1");
@@ -15,7 +13,6 @@ function main() {
         wait(1);
 
     }
-
 }
 
 function moveAndRotate(string name, number x, number y, number degrees){
