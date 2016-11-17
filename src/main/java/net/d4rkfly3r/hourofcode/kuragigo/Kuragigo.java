@@ -7,6 +7,7 @@ import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.Token;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Kuragigo {
@@ -53,6 +54,7 @@ public class Kuragigo {
                 System.out.println("Invalid Input!");
                 System.out.println();
                 this.handleUserInput();
+                return;
         }
         System.out.println();
         System.out.println();
@@ -79,6 +81,7 @@ public class Kuragigo {
             if (!scriptFile.exists()) {
                 System.out.println("Invalid Script Name!\n");
                 this.runScriptFromFile();
+                return;
             }
 
             String code;
@@ -104,21 +107,23 @@ public class Kuragigo {
             System.out.println("Invalid Input!\n");
             this.runScriptFromFile();
         }
-
     }
 
     private void handleCode(final String code) {
-//        System.out.println(code);
         final Lexer lexer = new Lexer(code);
+        final ArrayList<Token> tokens = new ArrayList<>();
         Token token;
         while ((token = lexer.getNextToken()) != SymbolToken.EOF) {
+            tokens.add(token);
+        }
+        this.handleTokens(tokens.toArray(new Token[tokens.size()]));
+    }
+
+    private void handleTokens(final Token[] tokens) {
+        for (Token token : tokens) {
             System.out.println(token);
         }
     }
-
-//    private void handleTokens(final Token[] tokens) {
-//
-//    }
 
     private void setup() {
         this.running = true;
