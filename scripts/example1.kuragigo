@@ -1,3 +1,5 @@
+
+
 `this is a test comment`
 function main() {
 
@@ -5,9 +7,9 @@ function main() {
     number test2 = 10.3;
     number x = test * test2;
 
-    createImage("assets/block.png", "player1");
+    createEntity("assets/block.png", "player1");
 
-    for(number i = 0; i < 10; i++){
+    for( number i = 0; i < 10; i++){
 
         moveAndRotate("player1", 0, 1, 45);
         wait(1);
@@ -15,9 +17,113 @@ function main() {
     }
 }
 
+` This
+  is
+  a
+  multiline
+  comment `
 function moveAndRotate(string name, number x, number y, number degrees){
 
     moveImage(name, x, y);
     rotateImage(name, degrees);
 
 }
+
+`
+SymbolToken{symbol=FUNCTION}
+IdentificationToken{name='main'}
+SymbolToken{symbol=OPEN_PARENTHESIS}
+SymbolToken{symbol=CLOSE_PARENTHESIS}
+SymbolToken{symbol=OPEN_CURLY_BRACE}
+SymbolToken{symbol=NUMBER}
+IdentificationToken{name='test'}
+SymbolToken{symbol=ASSIGN}
+NumberToken{numberData=5.0}
+SymbolToken{symbol=SEMICOLON}
+SymbolToken{symbol=NUMBER}
+IdentificationToken{name='test2'}
+SymbolToken{symbol=ASSIGN}
+NumberToken{numberData=10.3}
+SymbolToken{symbol=SEMICOLON}
+SymbolToken{symbol=NUMBER}
+IdentificationToken{name='x'}
+SymbolToken{symbol=ASSIGN}
+IdentificationToken{name='test'}
+OperatorToken{operator=MULTIPLY}
+IdentificationToken{name='test2'}
+SymbolToken{symbol=SEMICOLON}
+IdentificationToken{name='createEntity'}
+SymbolToken{symbol=OPEN_PARENTHESIS}
+StringToken{stringData='assets/block.png'}
+SymbolToken{symbol=COMMA}
+StringToken{stringData='player1'}
+SymbolToken{symbol=CLOSE_PARENTHESIS}
+SymbolToken{symbol=SEMICOLON}
+IdentificationToken{name='for'}
+SymbolToken{symbol=OPEN_PARENTHESIS}
+SymbolToken{symbol=NUMBER}
+IdentificationToken{name='i'}
+SymbolToken{symbol=ASSIGN}
+NumberToken{numberData=0.0}
+SymbolToken{symbol=SEMICOLON}
+IdentificationToken{name='i'}
+SymbolToken{symbol=OPEN_ANGLE_BRACKET}
+NumberToken{numberData=10.0}
+SymbolToken{symbol=SEMICOLON}
+IdentificationToken{name='i'}
+OperatorToken{operator=PLUS}
+OperatorToken{operator=PLUS}
+SymbolToken{symbol=CLOSE_PARENTHESIS}
+SymbolToken{symbol=OPEN_CURLY_BRACE}
+IdentificationToken{name='moveAndRotate'}
+SymbolToken{symbol=OPEN_PARENTHESIS}
+StringToken{stringData='player1'}
+SymbolToken{symbol=COMMA}
+NumberToken{numberData=0.0}
+SymbolToken{symbol=COMMA}
+NumberToken{numberData=1.0}
+SymbolToken{symbol=COMMA}
+NumberToken{numberData=45.0}
+SymbolToken{symbol=CLOSE_PARENTHESIS}
+SymbolToken{symbol=SEMICOLON}
+IdentificationToken{name='wait'}
+SymbolToken{symbol=OPEN_PARENTHESIS}
+NumberToken{numberData=1.0}
+SymbolToken{symbol=CLOSE_PARENTHESIS}
+SymbolToken{symbol=SEMICOLON}
+SymbolToken{symbol=CLOSE_CURLY_BRACE}
+SymbolToken{symbol=CLOSE_CURLY_BRACE}
+SymbolToken{symbol=FUNCTION}
+IdentificationToken{name='moveAndRotate'}
+SymbolToken{symbol=OPEN_PARENTHESIS}
+SymbolToken{symbol=STRING}
+IdentificationToken{name='name'}
+SymbolToken{symbol=COMMA}
+SymbolToken{symbol=NUMBER}
+IdentificationToken{name='x'}
+SymbolToken{symbol=COMMA}
+SymbolToken{symbol=NUMBER}
+IdentificationToken{name='y'}
+SymbolToken{symbol=COMMA}
+SymbolToken{symbol=NUMBER}
+IdentificationToken{name='degrees'}
+SymbolToken{symbol=CLOSE_PARENTHESIS}
+SymbolToken{symbol=OPEN_CURLY_BRACE}
+IdentificationToken{name='moveImage'}
+SymbolToken{symbol=OPEN_PARENTHESIS}
+IdentificationToken{name='name'}
+SymbolToken{symbol=COMMA}
+IdentificationToken{name='x'}
+SymbolToken{symbol=COMMA}
+IdentificationToken{name='y'}
+SymbolToken{symbol=CLOSE_PARENTHESIS}
+SymbolToken{symbol=SEMICOLON}
+IdentificationToken{name='rotateImage'}
+SymbolToken{symbol=OPEN_PARENTHESIS}
+IdentificationToken{name='name'}
+SymbolToken{symbol=COMMA}
+IdentificationToken{name='degrees'}
+SymbolToken{symbol=CLOSE_PARENTHESIS}
+SymbolToken{symbol=SEMICOLON}
+SymbolToken{symbol=CLOSE_CURLY_BRACE}
+`

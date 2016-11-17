@@ -1,5 +1,9 @@
 package net.d4rkfly3r.hourofcode.kuragigo;
 
+import net.d4rkfly3r.hourofcode.kuragigo.lexer.Lexer;
+import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.SymbolToken;
+import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.Token;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -11,7 +15,7 @@ public class Kuragigo {
     private boolean running;
     private File buildDir;
 
-    public Kuragigo() {
+    private Kuragigo() {
         this.scanner = new Scanner(System.in);
     }
 
@@ -69,7 +73,8 @@ public class Kuragigo {
         System.out.println("Please enter `raw` or `compiled`:");
         final String userInput = this.scanner.nextLine();
         if (userInput.equalsIgnoreCase("raw")) {
-            final String scriptName = this.scanner.nextLine(); // Case Sensitive I think!
+            System.out.println("Please enter the file name, excluding the extension:");
+            final String scriptName = this.scanner.nextLine() + ".kuragigo"; // Case Sensitive I think!
             final File scriptFile = new File(Configuration.SCRIPTS_FOLDER_FILE, scriptName);
             if (!scriptFile.exists()) {
                 System.out.println("Invalid Script Name!\n");
@@ -103,8 +108,12 @@ public class Kuragigo {
     }
 
     private void handleCode(final String code) {
-        System.out.println(code);
-
+//        System.out.println(code);
+        final Lexer lexer = new Lexer(code);
+        Token token;
+        while ((token = lexer.getNextToken()) != SymbolToken.EOF) {
+            System.out.println(token);
+        }
     }
 
 //    private void handleTokens(final Token[] tokens) {
@@ -130,7 +139,7 @@ public class Kuragigo {
         }
     }
 
-    public boolean isRunning() {
+    private boolean isRunning() {
         return this.running;
     }
 
