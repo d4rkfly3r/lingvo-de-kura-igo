@@ -34,6 +34,11 @@ public class Kuragigo {
         System.out.println("Cleaning up...");
         System.out.println();
         this.scanner.close();
+        if (Configuration.CLEANUP_BUILD_FOLDER) {
+            if (this.buildDir.exists()) {
+                this.buildDir.deleteOnExit();
+            }
+        }
         System.out.println("Goodbye...");
     }
 
