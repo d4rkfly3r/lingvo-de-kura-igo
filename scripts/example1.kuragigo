@@ -1,20 +1,24 @@
 
+number test;
+number test2;
+number x;
+
 
 `this is a test comment`
 function main() {
 
-    number test = 5;
-    number test2 = 10.3;
-    number x = test * test2;
+    test = 5;
+    test2 = 10.3;
+    x = test * test2;
 
     createEntity("assets/block.png", "player1");
 
-    for( number i = 0; i < 10; i++){
+    `for( number i = 0; i < 10; i++){`
 
         moveAndRotate("player1", 0, 1, 45);
         wait(1);
 
-    }
+    `}`
 }
 
 ` This

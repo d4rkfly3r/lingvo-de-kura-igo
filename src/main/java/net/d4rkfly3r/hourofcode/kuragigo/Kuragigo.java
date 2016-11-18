@@ -3,6 +3,7 @@ package net.d4rkfly3r.hourofcode.kuragigo;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.Lexer;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.SymbolToken;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.Token;
+import net.d4rkfly3r.hourofcode.kuragigo.parser.Parser;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -121,13 +122,18 @@ public class Kuragigo {
         while ((token = lexer.getNextToken()) != SymbolToken.EOF) {
             tokens.add(token);
         }
+        tokens.add(SymbolToken.EOF);
         this.handleTokens(tokens.toArray(new Token[tokens.size()]));
     }
 
     private void handleTokens(final Token[] tokens) {
-        for (Token token : tokens) {
-            System.out.println(token);
+        if (Configuration.DEBUG & false) {
+            for (Token token : tokens) {
+                System.out.println(token);
+            }
         }
+        Parser parser = new Parser(tokens);
+        parser.parse();
     }
 
     private void setup() {
@@ -153,7 +159,7 @@ public class Kuragigo {
         return this.running;
     }
 
-    public void setRunning(boolean running) {
+    public void setRunning(final boolean running) {
         this.running = running;
     }
 }
