@@ -21,6 +21,7 @@ public class Interpreter {
     private final Map<String, CompoundStatementNode> functions = new HashMap<>();
     private final Map<String, Function<Object[], Object>> javaFunctions = new HashMap<>();
     private HashMap<String, Object> currentScope = new HashMap<>();
+    private Animator animator;
 
     {
         final List<Overload> multiplyList = new ArrayList<>();
@@ -48,7 +49,11 @@ public class Interpreter {
         this.overloads.put(Token.Type.POWER, powerList);
 
         this.javaFunctions.put("createEntity", parameters -> {
+            for (int i = 0; i < parameters.length; i++) {
+                parameters[i] = this.visit((Statement) parameters[i]);
+            }
             System.out.println(Arrays.toString(parameters));
+            this.animator.createEntity((String) parameters[0], (String) parameters[1]);
             return null;
         });
         this.javaFunctions.put("wait", parameters -> {
@@ -63,25 +68,33 @@ public class Interpreter {
             return null;
         });
         this.javaFunctions.put("moveImage", parameters -> {
-            for (Object parameter : parameters) {
-                System.out.print(this.visit((Statement) parameter) + " | ");
+            for (int i = 0; i < parameters.length; i++) {
+                parameters[i] = this.visit((Statement) parameters[i]);
             }
-//            System.out.println(Arrays.toString(parameters) + " | " + this.currentScope);
+            System.out.println(Arrays.toString(parameters));
+            this.animator.updateEntityX((String) parameters[0], ((Number) parameters[1]).intValue());
+            this.animator.updateEntityY((String) parameters[0], ((Number) parameters[2]).intValue());
             return null;
         });
         this.javaFunctions.put("rotateImage", parameters -> {
-            System.out.println(Arrays.toString(parameters) + " | " + this.currentScope);
+            for (int i = 0; i < parameters.length; i++) {
+                parameters[i] = this.visit((Statement) parameters[i]);
+            }
+            System.out.println(Arrays.toString(parameters));
+            this.animator.updateEntityRotation((String) parameters[0], ((Number) parameters[1]).intValue());
             return null;
         });
     }
 
     public Interpreter(final Map<String, CompoundStatementNode> functions) {
+        this.animator = new Animator();
         this.functions.putAll(functions);
         this.lookup = MethodHandles.lookup().in(Interpreter.class);
     }
 
     public void interpret() {
         this.visit(this.functions.get("main"));
+        this.animator.close();
     }
 
     private Object visit(final Statement statement) {
@@ -97,10 +110,14 @@ public class Interpreter {
         return null;
     }
 
+    private Object visitStringNode(final StringNode statement) {
+        return statement.getStringData();
+    }
+
     private Object visitVariableNode(final VariableNode variableNode) {
         String variableName = variableNode.getName();
         if (this.currentScope.containsKey(variableName)) {
-            return this.currentScope.get(variableName);
+            return this.visit((Statement) this.currentScope.get(variableName));
         } else {
             return null;
             //TODO Fancy error handling?

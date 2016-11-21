@@ -12,12 +12,20 @@ function main() {
     test2 = 10.3;
     x = test * test2;
 
-    createEntity("assets/block.png", "player1");
+    createEntity("assets/logo.png", "player1");
 
     `for( number i = 0; i < 10; i++){`
 
-        moveAndRotate("player1", 0, 1, 45);
-        wait(5000);
+        moveAndRotate("player1", 0, 50, 45);
+        wait(1000);
+        moveAndRotate("player1", 0, 100, 45);
+        wait(1000);
+        moveAndRotate("player1", 0, 150, 45);
+        wait(1000);
+        moveAndRotate("player1", 50, 150, 45);
+        wait(1000);
+        moveAndRotate("player1", 150, 150, 45);
+        wait(1000);
 
     `}`
 }
