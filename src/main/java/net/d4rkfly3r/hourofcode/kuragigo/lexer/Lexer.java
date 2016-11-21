@@ -13,6 +13,7 @@ public class Lexer {
         RESERVED_KEYWORDS.put("number", new SymbolToken(Token.Type.NUMBER));
         RESERVED_KEYWORDS.put("string", new SymbolToken(Token.Type.STRING));
         RESERVED_KEYWORDS.put("sqrt", new SymbolToken(Token.Type.SQRT));
+        RESERVED_KEYWORDS.put("for", new SymbolToken(Token.Type.FOR));
     }
 
     private final String inputText;

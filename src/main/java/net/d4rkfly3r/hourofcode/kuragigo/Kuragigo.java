@@ -136,6 +136,7 @@ public class Kuragigo {
         Token token;
         while ((token = lexer.getNextToken()) != SymbolToken.EOF) {
             tokens.add(token);
+            System.out.println(token);
         }
         tokens.add(SymbolToken.EOF);
         this.handleTokens(tokens.toArray(new Token[tokens.size()]));

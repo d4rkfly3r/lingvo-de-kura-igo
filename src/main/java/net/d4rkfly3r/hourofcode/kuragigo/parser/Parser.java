@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Parser {
+    private static final Statement EMPTY = new EmptyOperation();
     private final Token[] tokens;
     private int tokenIndex;
     private Token currentToken;
@@ -130,7 +131,7 @@ public class Parser {
         results.add(statement);
 
         while (this.currentToken.getTokenType() == Token.Type.SEMICOLON) {
-            this.intake(Token.Type.SEMICOLON);
+            this.intake(Token.Type.SEMICOLON); // Rearrange to fix loops
             final Statement statement1 = this.statement();
             results.add(statement1);
         }
@@ -148,8 +149,39 @@ public class Parser {
                 } else if (this.peek().getTokenType() == Token.Type.OPEN_PARENTHESIS) {
                     return this.functionCallStatement();
                 }
+            case FOR:
+                return this.forStatement();
         }
         return this.empty();
+    }
+
+    private ForLoopNode forStatement() {
+        this.intake(Token.Type.FOR);
+        this.intake(Token.Type.OPEN_PARENTHESIS);
+        final AssignmentNode assignmentStatement = this.assignmentStatement();
+        this.intake(Token.Type.SEMICOLON);
+        final BinaryOperation comparisonNode = this.binaryStatement();
+        this.intake(Token.Type.SEMICOLON);
+        final AssignmentNode changeStatement = this.assignmentStatement();
+        this.intake(Token.Type.CLOSE_PARENTHESIS);
+        this.intake(Token.Type.OPEN_CURLY_BRACE);
+        List<Statement> statements = new ArrayList<>();
+        Statement statement;
+        while (!(statement = this.statement()).equals(EMPTY)) {
+            this.intake(Token.Type.SEMICOLON);
+            statements.add(statement);
+        }
+
+        this.intake(Token.Type.CLOSE_CURLY_BRACE);
+        return new ForLoopNode(assignmentStatement, comparisonNode, changeStatement, statements);
+    }
+
+    private BinaryOperation binaryStatement() {
+        final Statement leftStatement = this.expression();
+        final Token operator = this.currentToken;
+        this.intake(operator.getTokenType());
+        final Statement rightStatement = this.expression();
+        return new BinaryOperation(leftStatement, operator, rightStatement);
     }
 
     private FunctionCallNode functionCallStatement() {
@@ -159,19 +191,7 @@ public class Parser {
         if (this.currentToken.getTokenType() != Token.Type.CLOSE_PARENTHESIS) {
             boolean moreParams = true;
             while (moreParams) {
-                if (this.currentToken.getTokenType().isVariableType()) {
-                    switch (this.currentToken.getTokenType()) {
-                        case STRING:
-                            parameters.add(new StringNode((StringToken) this.currentToken));
-                            break;
-                        case NUMBER:
-                            parameters.add(new NumberNode((NumberToken) this.currentToken));
-                            break;
-                    }
-                    this.intake(this.currentToken.getTokenType());
-                } else if (this.currentToken.getTokenType() == Token.Type.IDENTIFICATION) {
-                    parameters.add(this.variable());
-                }
+                parameters.add(this.expression());
                 if (this.currentToken.getTokenType() == Token.Type.CLOSE_PARENTHESIS) {
                     moreParams = false;
                     this.intake(Token.Type.CLOSE_PARENTHESIS);
@@ -186,10 +206,10 @@ public class Parser {
     }
 
     private Statement empty() {
-        return new EmptyOperation();
+        return EMPTY;
     }
 
-    private Statement assignmentStatement() {
+    private AssignmentNode assignmentStatement() {
         VariableNode leftNode = this.variable();
         this.intake(Token.Type.ASSIGN);
         Statement rightStatement = this.expression();

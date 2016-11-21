@@ -48,42 +48,37 @@ public class Interpreter {
         powerList.add(new Overload<Double, Double>(Double.class, Double.class, Double.class, (o, o2) -> Math.pow(o, o2)));
         this.overloads.put(Token.Type.POWER, powerList);
 
+        final List<Overload> ltList = new ArrayList<>();
+        ltList.add(new Overload<Double, Double>(Double.class, Double.class, Boolean.class, (o, o2) -> o < o2));
+        this.overloads.put(Token.Type.OPEN_ANGLE_BRACKET, ltList);
+
         this.javaFunctions.put("createEntity", parameters -> {
-            for (int i = 0; i < parameters.length; i++) {
-                parameters[i] = this.visit((Statement) parameters[i]);
-            }
+            this.cleanParameters(parameters);
             this.animator.createEntity((String) parameters[0], (String) parameters[1]);
             return null;
         });
         this.javaFunctions.put("wait", parameters -> {
+            this.cleanParameters(parameters);
             try {
-                final Object visit = this.visit((Statement) parameters[0]);
-                final long millis = ((Number) visit).longValue();
-                Thread.sleep(millis);
+                Thread.sleep(((Number) parameters[0]).longValue());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             return null;
         });
         this.javaFunctions.put("moveEntity", parameters -> {
-            for (int i = 0; i < parameters.length; i++) {
-                parameters[i] = this.visit((Statement) parameters[i]);
-            }
+            this.cleanParameters(parameters);
             this.animator.updateEntityX((String) parameters[0], ((Number) parameters[1]).intValue());
             this.animator.updateEntityY((String) parameters[0], ((Number) parameters[2]).intValue());
             return null;
         });
         this.javaFunctions.put("rotateEntity", parameters -> {
-            for (int i = 0; i < parameters.length; i++) {
-                parameters[i] = this.visit((Statement) parameters[i]);
-            }
+            this.cleanParameters(parameters);
             this.animator.updateEntityRotation((String) parameters[0], ((Number) parameters[1]).intValue());
             return null;
         });
         this.javaFunctions.put("resizeEntity", parameters -> {
-            for (int i = 0; i < parameters.length; i++) {
-                parameters[i] = this.visit((Statement) parameters[i]);
-            }
+            this.cleanParameters(parameters);
             this.animator.resizeEntity((String) parameters[0], ((Number) parameters[1]).intValue(), ((Number) parameters[2]).intValue());
             return null;
         });
@@ -93,6 +88,15 @@ public class Interpreter {
         this.animator = new Animator();
         this.functions.putAll(functions);
         this.lookup = MethodHandles.lookup().in(Interpreter.class);
+    }
+
+    private void cleanParameters(Object[] parameters) {
+        for (int i = 0; i < parameters.length; i++) {
+            if (parameters[i] instanceof Statement) {
+                parameters[i] = this.visit((Statement) parameters[i]);
+
+            }
+        }
     }
 
     public void interpret() {
@@ -113,14 +117,29 @@ public class Interpreter {
         return null;
     }
 
+    private Object visitForLoopNode(final ForLoopNode statement) {
+        this.visit(statement.getAssignmentNode());
+        final BinaryOperation comparisonNode = statement.getComparisonNode();
+        while ((boolean) this.visitBinaryOperation(comparisonNode)) {
+            statement.getStatements().forEach(this::visit);
+            this.visit(statement.getChangeNode());
+        }
+//        final BinaryOperation comparisonNode = statement.getComparisonNode();
+//        while (this.visit(comparisonNode.getLeftStatement()) < this.visit(comparisonNode.getRightStatement())) {
+//
+//        }
+        return null;
+    }
+
     private Object visitStringNode(final StringNode statement) {
         return statement.getStringData();
     }
 
     private Object visitVariableNode(final VariableNode variableNode) {
-        String variableName = variableNode.getName();
+        final String variableName = variableNode.getName();
         if (this.currentScope.containsKey(variableName)) {
-            return this.visit((Statement) this.currentScope.get(variableName));
+            final Object o = this.currentScope.get(variableName);
+            return o instanceof Statement ? this.visit((Statement) o) : o;
         } else {
             return null;
             //TODO Fancy error handling?
@@ -129,18 +148,21 @@ public class Interpreter {
 
     private Object visitFunctionCallNode(final FunctionCallNode functionCallNode) {
         if (this.functions.containsKey(functionCallNode.getFunctionName())) {
-            this.currentScope = new HashMap<>();
+            final HashMap<String, Object> tempScope = new HashMap<>();
             final CompoundStatementNode statement = this.functions.get(functionCallNode.getFunctionName());
             for (int i = 0; i < functionCallNode.getParameters().size(); i++) {
-                this.currentScope.put(statement.getParameterNode().getParameters().get(i).getVariableNode().getName(), functionCallNode.getParameters().get(i));
+                tempScope.put(statement.getParameterNode().getParameters().get(i).getVariableNode().getName(), this.visit(functionCallNode.getParameters().get(i)));
             }
-            this.visit(statement);
+            final HashMap<String, Object> lastMap = new HashMap<>(this.currentScope);
+            this.currentScope = tempScope;
+            final Object visit = this.visit(statement);
+            this.currentScope = lastMap;
+            return visit;
         } else if (this.javaFunctions.containsKey(functionCallNode.getFunctionName())) {
-            this.javaFunctions.get(functionCallNode.getFunctionName()).apply(functionCallNode.getParameters().toArray());
+            return this.javaFunctions.get(functionCallNode.getFunctionName()).apply(functionCallNode.getParameters().toArray());
         } else {
             throw new RuntimeException("No such function exists!");
         }
-        return null;
     }
 
     private Object visitCompoundStatementNode(final CompoundStatementNode compoundStatementNode) {
@@ -149,7 +171,7 @@ public class Interpreter {
     }
 
     private Object visitAssignmentNode(final AssignmentNode assignNode) {
-        String variableName = assignNode.getVariableNode().getName();
+        final String variableName = assignNode.getVariableNode().getName();
         final Object visit = this.visit(assignNode.getStatement());
         this.currentScope.put(variableName, visit);
         return null;
@@ -164,12 +186,16 @@ public class Interpreter {
         Object leftStatement = binaryOperation.getLeftStatement();
         Object rightStatement = binaryOperation.getRightStatement();
         if (this.overloads.containsKey(tokenType)) {
-            if (leftStatement instanceof VariableNode) {
-                leftStatement = this.currentScope.get(((VariableNode) leftStatement).getName());
-            }
-            if (rightStatement instanceof VariableNode) {
-                rightStatement = this.currentScope.get(((VariableNode) rightStatement).getName());
-            }
+//            if (leftStatement instanceof VariableNode) {
+//                leftStatement = this.currentScope.get(((VariableNode) leftStatement).getName());
+//            } else {
+            leftStatement = this.visit((Statement) leftStatement);
+//            }
+//            if (rightStatement instanceof VariableNode) {
+//                rightStatement = this.currentScope.get(((VariableNode) rightStatement).getName());
+//            } else {
+            rightStatement = this.visit((Statement) rightStatement);
+//            }
             final Object finalLeftStatement = leftStatement;
             final Object finalRightStatement = rightStatement;
             Optional<Overload> optOverload = this.overloads.get(tokenType)

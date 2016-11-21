@@ -1,14 +1,16 @@
 function main() {
 
     ` TODO Make initialize and assign possible here to. `
-    test = 5;
-    test2 = 10.3;
-    x = test * test2;
-
     createEntity("assets/logo.png", "player1");
     createEntity("assets/logo.png", "player2");
     resizeEntity("player1", 100, 100);
     resizeEntity("player2", 100, 100);
+
+    for(i=0; i<10; i=i+1){
+        moveAndRotate("player1", 5*i*i, 50, 45);
+        moveAndRotate("player2", 150, 150, 45);
+        wait(500);
+    };
 
     moveAndRotate("player1", 0, 50, 45);
     moveAndRotate("player2", 150, 150, 45);
@@ -25,6 +27,7 @@ function main() {
     moveAndRotate("player1", 150, 150, 45);
     moveAndRotate("player2", 0, 50, 45);
     wait(1000);
+
 }
 
 function moveAndRotate(string name, number x, number y, number degrees){
