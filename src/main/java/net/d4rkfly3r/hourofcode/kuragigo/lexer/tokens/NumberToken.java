@@ -1,14 +1,16 @@
 package net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens;
 
-public class NumberToken extends Token {
-    private final Double numberData;
+import net.d4rkfly3r.hourofcode.kuragigo.parser.nodes.NumberNode;
 
-    public NumberToken(final Double numberData) {
+public class NumberToken extends Token {
+    private final Number numberData;
+
+    public NumberToken(final Number numberData) {
         super(Type.NUMBER);
         this.numberData = numberData;
     }
 
-    public Double getNumberData() {
+    public Number getNumberData() {
         return this.numberData;
     }
 

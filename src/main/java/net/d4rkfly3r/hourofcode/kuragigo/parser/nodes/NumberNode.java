@@ -14,10 +14,6 @@ public class NumberNode implements Statement {
         return this.token;
     }
 
-    public Number getNumberData() {
-        return this.token.getNumberData();
-    }
-
     @Override
     public String toString() {
         return "NumberNode{" +

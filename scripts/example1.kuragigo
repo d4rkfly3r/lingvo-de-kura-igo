@@ -7,6 +7,7 @@ number x;
 `this is a test comment`
 function main() {
 
+    ` TODO Make initialize and assign possible here to. `
     test = 5;
     test2 = 10.3;
     x = test * test2;
@@ -16,7 +17,7 @@ function main() {
     `for( number i = 0; i < 10; i++){`
 
         moveAndRotate("player1", 0, 1, 45);
-        wait(1);
+        wait(5000);
 
     `}`
 }

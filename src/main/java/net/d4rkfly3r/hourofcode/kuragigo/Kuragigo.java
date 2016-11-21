@@ -4,11 +4,15 @@ import net.d4rkfly3r.hourofcode.kuragigo.lexer.Lexer;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.SymbolToken;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.Token;
 import net.d4rkfly3r.hourofcode.kuragigo.parser.Parser;
+import net.d4rkfly3r.hourofcode.kuragigo.parser.Statement;
+import net.d4rkfly3r.hourofcode.kuragigo.parser.nodes.CompoundStatementNode;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Kuragigo {
@@ -16,6 +20,7 @@ public class Kuragigo {
     private final Scanner scanner;
     private boolean running;
     private File buildDir;
+    private long lastTime = 0L;
 
     private Kuragigo() {
         this.scanner = new Scanner(System.in);
@@ -116,6 +121,7 @@ public class Kuragigo {
     }
 
     private void handleCode(final String code) {
+        this.lastTime = System.currentTimeMillis();
         final Lexer lexer = new Lexer(code);
         final ArrayList<Token> tokens = new ArrayList<>();
         Token token;
@@ -127,13 +133,16 @@ public class Kuragigo {
     }
 
     private void handleTokens(final Token[] tokens) {
-        if (Configuration.DEBUG & false) {
+        if (Configuration.DEBUG) {
             for (Token token : tokens) {
                 System.out.println(token);
             }
         }
         Parser parser = new Parser(tokens);
-        parser.parse();
+        final Map<String, CompoundStatementNode> parse = parser.parse();
+        System.out.println("Compile and parsing took: " + (System.currentTimeMillis() - this.lastTime) + " milliseconds.");
+        Interpreter interpreter = new Interpreter(parse);
+        interpreter.interpret();
     }
 
     private void setup() {

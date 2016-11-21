@@ -11,6 +11,7 @@ import net.d4rkfly3r.hourofcode.kuragigo.parser.operations.UnaryOperation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Parser {
@@ -53,7 +54,7 @@ public class Parser {
         return this.tokens[this.tokenIndex + 1];
     }
 
-    public Statement parse() {
+    public Map<String, CompoundStatementNode> parse() {
         List<VariableDeclarationNode> declarationNodes = this.declarations();
 
 //        Statement rootStatement = this.block();
@@ -65,18 +66,7 @@ public class Parser {
             this.syntaxError("Expected end of file!");
         }
 
-        Statement mainFunction = this.empty();
-        for (CompoundStatementNode function : functions) {
-            if (function.getFunctionName().equals("main")) {
-                mainFunction = function;
-                System.out.println("Main Function: " + mainFunction);
-            } else {
-                System.out.println("Function: " + function);
-            }
-        }
-
-        return mainFunction;
-
+        return functions.stream().collect(Collectors.toMap(compoundStatementNode -> compoundStatementNode.getFunctionName(), compoundStatementNode -> compoundStatementNode));
     }
 
     private CompoundStatementNode block() {
@@ -180,7 +170,7 @@ public class Parser {
                     }
                     this.intake(this.currentToken.getTokenType());
                 } else if (this.currentToken.getTokenType() == Token.Type.IDENTIFICATION) {
-                    this.variable();
+                    parameters.add(this.variable());
                 }
                 if (this.currentToken.getTokenType() == Token.Type.CLOSE_PARENTHESIS) {
                     moreParams = false;
@@ -235,7 +225,7 @@ public class Parser {
         return variableNode;
     }
 
-    public Statement factor() {
+    private Statement factor() {
         final Token token = this.currentToken;
         switch (token.getTokenType()) {
             case OPEN_PARENTHESIS:
@@ -262,7 +252,7 @@ public class Parser {
         return this.variable();
     }
 
-    public Statement term() {
+    private Statement term() {
         Statement rootStatement = this.factor();
         while (this.currentToken.getTokenType().isPrimaryMathOperator()) {
             final Token operatorToken = this.currentToken;
@@ -286,7 +276,7 @@ public class Parser {
         return rootStatement;
     }
 
-    public Statement expression() {
+    private Statement expression() {
         Statement rootStatement = this.term();
 
         while (this.currentToken.getTokenType().isSecondaryMathOperator()) {
