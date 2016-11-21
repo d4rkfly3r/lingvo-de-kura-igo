@@ -14,7 +14,7 @@ public class Animator {
 
     public Animator() {
         this.jFrame = new JFrame("Lingvo de Kuragigo");
-        this.jFrame.setSize(500, 300);
+        this.jFrame.setSize(1000, 1000);
         this.jFrame.setLocationRelativeTo(null);
         this.jFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
@@ -22,9 +22,7 @@ public class Animator {
             @Override
             public void paint(Graphics g) {
                 super.paint(g);
-                for (Entity entity : Animator.this.entityList.values()) {
-                    g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), null);
-                }
+                Animator.this.entityList.values().stream().filter(Entity::isVisible).forEach(entity -> g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), null));
             }
         };
 
@@ -34,14 +32,13 @@ public class Animator {
     }
 
     public void close() {
-//        this.jFrame.setVisible(false);
-//        this.jFrame.dispose();
+        this.jFrame.setVisible(false);
+        this.jFrame.dispose();
     }
 
     public void createEntity(String asset, String name) {
         final Entity value = new Entity(asset);
         this.entityList.put(name, value);
-        System.out.println("Entity Created: " + value.bufferedImage);
         this.jFrame.repaint();
     }
 
@@ -60,20 +57,57 @@ public class Animator {
         this.jFrame.repaint();
     }
 
+    public void resizeEntity(String name, int width, int height) {
+        this.entityList.get(name).setWidth(width);
+        this.entityList.get(name).setHeight(height);
+        this.jFrame.repaint();
+    }
+
     private static class Entity {
-        private final BufferedImage bufferedImage;
-        private int x, y, rotation;
+        private BufferedImage bufferedImage;
+        private int x, y, rotation, width, height;
+        private boolean visible = true;
 
         private Entity(final String asset) {
             try {
                 this.bufferedImage = ImageIO.read(new File(asset));
+                this.width = this.bufferedImage.getWidth();
+                this.height = this.bufferedImage.getHeight();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
 
+        public int getWidth() {
+            return this.width;
+        }
+
+        public void setWidth(int width) {
+            this.width = width;
+        }
+
+        public int getHeight() {
+            return this.height;
+        }
+
+        public void setHeight(int height) {
+            this.height = height;
+        }
+
+        public boolean isVisible() {
+            return this.visible;
+        }
+
+        public void setVisible(boolean visible) {
+            this.visible = visible;
+        }
+
         public BufferedImage getBufferedImage() {
             return this.bufferedImage;
+        }
+
+        public void setBufferedImage(BufferedImage bufferedImage) {
+            this.bufferedImage = bufferedImage;
         }
 
         public int getX() {

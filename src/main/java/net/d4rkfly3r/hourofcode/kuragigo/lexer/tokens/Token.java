@@ -1,6 +1,8 @@
 package net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens;
 
-public abstract class Token {
+import java.io.Serializable;
+
+public abstract class Token implements Serializable {
 
 
     private final Type tokenType;

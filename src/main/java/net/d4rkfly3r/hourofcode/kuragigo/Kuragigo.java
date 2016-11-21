@@ -4,14 +4,10 @@ import net.d4rkfly3r.hourofcode.kuragigo.lexer.Lexer;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.SymbolToken;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.Token;
 import net.d4rkfly3r.hourofcode.kuragigo.parser.Parser;
-import net.d4rkfly3r.hourofcode.kuragigo.parser.Statement;
 import net.d4rkfly3r.hourofcode.kuragigo.parser.nodes.CompoundStatementNode;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -21,6 +17,7 @@ public class Kuragigo {
     private boolean running;
     private File buildDir;
     private long lastTime = 0L;
+    private String scriptName; // Case Sensitive I think!
 
     private Kuragigo() {
         this.scanner = new Scanner(System.in);
@@ -49,6 +46,7 @@ public class Kuragigo {
     }
 
     private void handleUserInput() {
+        this.scriptName = null;
         System.out.println("Please enter `file`, `input`, or `quit` to signify your action.");
         final String userInput = this.scanner.nextLine().toLowerCase();
         switch (userInput) {
@@ -87,8 +85,8 @@ public class Kuragigo {
         final String userInput = this.scanner.nextLine();
         if (userInput.equalsIgnoreCase("raw")) {
             System.out.println("Please enter the file name, excluding the extension:");
-            final String scriptName = this.scanner.nextLine() + ".kuragigo"; // Case Sensitive I think!
-            final File scriptFile = new File(Configuration.SCRIPTS_FOLDER_FILE, scriptName);
+            this.scriptName = this.scanner.nextLine() + ".kuragigo";
+            final File scriptFile = new File(Configuration.SCRIPTS_FOLDER_FILE, this.scriptName);
             if (!scriptFile.exists()) {
                 System.out.println("Invalid Script Name!\n");
                 this.runScriptFromFile();
@@ -113,6 +111,17 @@ public class Kuragigo {
             this.handleCode(code);
 
         } else if (userInput.equalsIgnoreCase("compiled")) {
+            System.out.println("Please enter the file name, excluding the extension:");
+            this.scriptName = this.scanner.nextLine() + ".kuragigo";
+
+            Map<String, CompoundStatementNode> tree = null;
+            try (FileInputStream fis = new FileInputStream(new File(this.buildDir, this.scriptName + ".konstruu")); ObjectInputStream ois = new ObjectInputStream(fis)) {
+                tree = (Map<String, CompoundStatementNode>) ois.readObject();
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            this.handleTree(tree);
 
         } else {
             System.out.println("Invalid Input!\n");
@@ -139,10 +148,25 @@ public class Kuragigo {
             }
         }
         Parser parser = new Parser(tokens);
-        final Map<String, CompoundStatementNode> parse = parser.parse();
+        final Map<String, CompoundStatementNode> tree = parser.parse();
         System.out.println("Compile and parsing took: " + (System.currentTimeMillis() - this.lastTime) + " milliseconds.");
-        Interpreter interpreter = new Interpreter(parse);
+        this.saveCompiled(tree);
+        this.handleTree(tree);
+    }
+
+    private void handleTree(Map<String, CompoundStatementNode> tree) {
+        Interpreter interpreter = new Interpreter(tree);
         interpreter.interpret();
+    }
+
+    private void saveCompiled(Map<String, CompoundStatementNode> tree) {
+        if (this.scriptName != null) {
+            try (FileOutputStream fos = new FileOutputStream(new File(this.buildDir, this.scriptName + ".konstruu")); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+                oos.writeObject(tree);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void setup() {

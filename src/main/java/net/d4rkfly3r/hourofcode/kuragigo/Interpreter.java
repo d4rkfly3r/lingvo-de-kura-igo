@@ -52,12 +52,10 @@ public class Interpreter {
             for (int i = 0; i < parameters.length; i++) {
                 parameters[i] = this.visit((Statement) parameters[i]);
             }
-            System.out.println(Arrays.toString(parameters));
             this.animator.createEntity((String) parameters[0], (String) parameters[1]);
             return null;
         });
         this.javaFunctions.put("wait", parameters -> {
-            System.out.println(Arrays.toString(parameters));
             try {
                 final Object visit = this.visit((Statement) parameters[0]);
                 final long millis = ((Number) visit).longValue();
@@ -67,21 +65,26 @@ public class Interpreter {
             }
             return null;
         });
-        this.javaFunctions.put("moveImage", parameters -> {
+        this.javaFunctions.put("moveEntity", parameters -> {
             for (int i = 0; i < parameters.length; i++) {
                 parameters[i] = this.visit((Statement) parameters[i]);
             }
-            System.out.println(Arrays.toString(parameters));
             this.animator.updateEntityX((String) parameters[0], ((Number) parameters[1]).intValue());
             this.animator.updateEntityY((String) parameters[0], ((Number) parameters[2]).intValue());
             return null;
         });
-        this.javaFunctions.put("rotateImage", parameters -> {
+        this.javaFunctions.put("rotateEntity", parameters -> {
             for (int i = 0; i < parameters.length; i++) {
                 parameters[i] = this.visit((Statement) parameters[i]);
             }
-            System.out.println(Arrays.toString(parameters));
             this.animator.updateEntityRotation((String) parameters[0], ((Number) parameters[1]).intValue());
+            return null;
+        });
+        this.javaFunctions.put("resizeEntity", parameters -> {
+            for (int i = 0; i < parameters.length; i++) {
+                parameters[i] = this.visit((Statement) parameters[i]);
+            }
+            this.animator.resizeEntity((String) parameters[0], ((Number) parameters[1]).intValue(), ((Number) parameters[2]).intValue());
             return null;
         });
     }
@@ -131,9 +134,6 @@ public class Interpreter {
             for (int i = 0; i < functionCallNode.getParameters().size(); i++) {
                 this.currentScope.put(statement.getParameterNode().getParameters().get(i).getVariableNode().getName(), functionCallNode.getParameters().get(i));
             }
-//            for (Statement statement : functionCallNode.getParameters()) {
-//                this.currentScope.put(this.visit(statement));
-//            }
             this.visit(statement);
         } else if (this.javaFunctions.containsKey(functionCallNode.getFunctionName())) {
             this.javaFunctions.get(functionCallNode.getFunctionName()).apply(functionCallNode.getParameters().toArray());
