@@ -113,14 +113,14 @@ public class Kuragigo {
         } else if (userInput.equalsIgnoreCase("compiled")) {
             System.out.println("Please enter the file name, excluding the extension:");
             this.scriptName = this.scanner.nextLine() + ".kuragigo";
-
+            this.lastTime = System.currentTimeMillis();
             Map<String, CompoundStatementNode> tree = null;
             try (FileInputStream fis = new FileInputStream(new File(this.buildDir, this.scriptName + ".konstruu")); ObjectInputStream ois = new ObjectInputStream(fis)) {
                 tree = (Map<String, CompoundStatementNode>) ois.readObject();
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
-
+            System.out.println("Loaded compiled AST in: " + (System.currentTimeMillis() - this.lastTime) + " milliseconds.");
             this.handleTree(tree);
 
         } else {
@@ -136,7 +136,6 @@ public class Kuragigo {
         Token token;
         while ((token = lexer.getNextToken()) != SymbolToken.EOF) {
             tokens.add(token);
-            System.out.println(token);
         }
         tokens.add(SymbolToken.EOF);
         this.handleTokens(tokens.toArray(new Token[tokens.size()]));

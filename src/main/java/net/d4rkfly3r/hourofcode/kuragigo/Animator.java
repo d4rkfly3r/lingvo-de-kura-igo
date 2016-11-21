@@ -22,7 +22,9 @@ public class Animator {
             @Override
             public void paint(Graphics g) {
                 super.paint(g);
-                Animator.this.entityList.values().stream().filter(Entity::isVisible).forEach(entity -> g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), null));
+                synchronized (Animator.this.entityList) {
+                    Animator.this.entityList.values().stream().filter(Entity::isVisible).forEach(entity -> g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), null));
+                }
             }
         };
 

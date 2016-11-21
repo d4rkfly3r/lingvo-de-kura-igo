@@ -6,13 +6,13 @@ function main() {
     resizeEntity("player1", 100, 100);
     resizeEntity("player2", 100, 100);
 
-    for(i=0; i<10; i=i+1){
+    for(i=0; i<20; i=i+1){
         moveAndRotate("player1", 5*i*i, 50, 45);
         moveAndRotate("player2", 150, 150, 45);
-        wait(500);
+        wait(100);
     };
 
-    moveAndRotate("player1", 0, 50, 45);
+`    moveAndRotate("player1", 0, 50, 45);
     moveAndRotate("player2", 150, 150, 45);
     wait(1000);
     moveAndRotate("player1", 0, 100, 45);
@@ -27,7 +27,7 @@ function main() {
     moveAndRotate("player1", 150, 150, 45);
     moveAndRotate("player2", 0, 50, 45);
     wait(1000);
-
+`
 }
 
 function moveAndRotate(string name, number x, number y, number degrees){
