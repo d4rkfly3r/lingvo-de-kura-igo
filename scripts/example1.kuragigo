@@ -16,7 +16,7 @@ function main() {
         createEntity("assets/grass.bmp","grass"+i);
         resizeEntity("grass"+i, 50,50);
         moveEntity("grass"+i, 50*i, 1000-85);
-        setEntityVisibility("grass"+i, 1);
+        setEntityVisibility(i+"grass"+i, 1);
     };
 
     wait(500);
