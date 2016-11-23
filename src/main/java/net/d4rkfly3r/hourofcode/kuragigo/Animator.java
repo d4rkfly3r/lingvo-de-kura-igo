@@ -21,16 +21,37 @@ public class Animator {
         final JPanel jPanel = new JPanel() {
             @Override
             public void paint(Graphics g) {
-                super.paint(g);
-                synchronized (Animator.this.entityList) {
-                    Animator.this.entityList.values().stream().filter(Entity::isVisible).forEach(entity -> g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), null));
-                }
+//                super.paint(g);
+                g.clearRect(0, 0, 1000, 1000);
+
+//                synchronized (Animator.this.entityList) {
+                ((HashMap<String, Entity>) Animator.this.entityList.clone()).values().stream().filter(Entity::isVisible).forEach(entity -> g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), null));
+//                }
+//
+//                Animator.this.entityList.values().iterator().forEachRemaining(entity -> {
+//                    System.out.println(entity);
+//                });
             }
         };
 
         this.jFrame.add(jPanel);
         this.jFrame.setAlwaysOnTop(true);
         this.jFrame.setVisible(true);
+
+        this.start();
+    }
+
+    public void start() {
+        new Thread(() -> {
+            while (true) {
+                Animator.this.jFrame.repaint();
+                try {
+                    Thread.sleep(1000 / 5);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     public void close() {
@@ -65,14 +86,19 @@ public class Animator {
         this.jFrame.repaint();
     }
 
+    public void setEntityVisibility(String name, boolean visible) {
+        this.entityList.get(name).setVisible(visible);
+    }
+
     private static class Entity {
         private BufferedImage bufferedImage;
         private int x, y, rotation, width, height;
-        private boolean visible = true;
+        private boolean visible = false;
 
         private Entity(final String asset) {
             try {
-                this.bufferedImage = ImageIO.read(new File(asset));
+                final File input = new File(asset);
+                this.bufferedImage = ImageIO.read(input);
                 this.width = this.bufferedImage.getWidth();
                 this.height = this.bufferedImage.getHeight();
             } catch (IOException e) {

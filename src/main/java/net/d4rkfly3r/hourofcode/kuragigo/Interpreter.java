@@ -30,6 +30,7 @@ public class Interpreter {
 
         final List<Overload> addList = new ArrayList<>();
         addList.add(new Overload<Double, Double>(Double.class, Double.class, Double.class, (o, o2) -> o + o2));
+        addList.add(new Overload<String, Double>(String.class, Double.class, String.class, (o, o2) -> o + o2));
         this.overloads.put(Token.Type.PLUS, addList);
 
         final List<Overload> subtractList = new ArrayList<>();
@@ -80,6 +81,11 @@ public class Interpreter {
         this.javaFunctions.put("resizeEntity", parameters -> {
             this.cleanParameters(parameters);
             this.animator.resizeEntity((String) parameters[0], ((Number) parameters[1]).intValue(), ((Number) parameters[2]).intValue());
+            return null;
+        });
+        this.javaFunctions.put("setEntityVisibility", parameters -> {
+            this.cleanParameters(parameters);
+            this.animator.setEntityVisibility((String) parameters[0], ((Number) parameters[1]).intValue() == 1);
             return null;
         });
     }

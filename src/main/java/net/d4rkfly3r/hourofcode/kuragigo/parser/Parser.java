@@ -56,9 +56,6 @@ public class Parser {
     }
 
     public Map<String, CompoundStatementNode> parse() {
-        List<VariableDeclarationNode> declarationNodes = this.declarations();
-
-//        Statement rootStatement = this.block();
         List<CompoundStatementNode> functions = new ArrayList<>();
         while (this.currentToken.getTokenType() != Token.Type.EOF) {
             functions.add(this.block());
@@ -314,5 +311,4 @@ public class Parser {
 
         return rootStatement;
     }
-
 }
