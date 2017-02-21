@@ -22,6 +22,7 @@ public class Interpreter {
     private final Map<String, Function<Object[], Object>> javaFunctions = new HashMap<>();
     private HashMap<String, Object> currentScope = new HashMap<>();
     private Animator animator;
+    private boolean running = true;
 
     {
         final List<Overload> multiplyList = new ArrayList<>();
@@ -112,6 +113,7 @@ public class Interpreter {
     }
 
     private Object visit(final Statement statement) {
+        if (!this.running) return null;
         if (statement instanceof EmptyOperation) {
             return null;
         }
@@ -131,10 +133,6 @@ public class Interpreter {
             statement.getStatements().forEach(this::visit);
             this.visit(statement.getChangeNode());
         }
-//        final BinaryOperation comparisonNode = statement.getComparisonNode();
-//        while (this.visit(comparisonNode.getLeftStatement()) < this.visit(comparisonNode.getRightStatement())) {
-//
-//        }
         return null;
     }
 
@@ -168,7 +166,7 @@ public class Interpreter {
         } else if (this.javaFunctions.containsKey(functionCallNode.getFunctionName())) {
             return this.javaFunctions.get(functionCallNode.getFunctionName()).apply(functionCallNode.getParameters().toArray());
         } else {
-            throw new RuntimeException("No such function exists!");
+            throw new RuntimeException("No such function exists! " + functionCallNode.getFunctionName());
         }
     }
 
@@ -190,26 +188,24 @@ public class Interpreter {
 
     private Object visitBinaryOperation(final BinaryOperation binaryOperation) {
         final Token.Type tokenType = binaryOperation.getOperatorToken().getTokenType();
-        Object leftStatement = binaryOperation.getLeftStatement();
-        Object rightStatement = binaryOperation.getRightStatement();
         if (this.overloads.containsKey(tokenType)) {
-//            if (leftStatement instanceof VariableNode) {
-//                leftStatement = this.currentScope.get(((VariableNode) leftStatement).getName());
-//            } else {
-            leftStatement = this.visit((Statement) leftStatement);
-//            }
-//            if (rightStatement instanceof VariableNode) {
-//                rightStatement = this.currentScope.get(((VariableNode) rightStatement).getName());
-//            } else {
-            rightStatement = this.visit((Statement) rightStatement);
-//            }
-            final Object finalLeftStatement = leftStatement;
-            final Object finalRightStatement = rightStatement;
+            final Object leftStatement = this.visit(binaryOperation.getLeftStatement());
+            final Object rightStatement = this.visit(binaryOperation.getRightStatement());
+            if (leftStatement == null || rightStatement == null) {
+                this.running = false;
+                throw new IllegalStateException("Binary Operation has null value: " + binaryOperation);
+            }
             Optional<Overload> optOverload = this.overloads.get(tokenType)
                     .stream()
-                    .filter(overload -> overload.getObjectOneType().equals(finalLeftStatement.getClass()) && overload.getObjectTwoType().equals(finalRightStatement.getClass()))
+                    .filter(overload -> overload.getObjectOneType().equals(leftStatement.getClass()) && overload.getObjectTwoType().equals(rightStatement.getClass()))
                     .findFirst();
-            return optOverload.isPresent() ? optOverload.get().transformer.apply(leftStatement, rightStatement) : null;
+
+            if (optOverload.isPresent()) {
+                return optOverload.get().transformer.apply(leftStatement, rightStatement);
+            } else {
+                this.running = false;
+                throw new IllegalStateException("Invalid Operand applied to: " + binaryOperation);
+            }
         }
 
         return null;

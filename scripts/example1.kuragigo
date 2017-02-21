@@ -20,6 +20,7 @@ function main() {
             setEntityVisibility(l+"grass"+i, 1);
         };
     };
+
     wait(500);
 
     moveAndRotate("player1", 0, 50, 45);
