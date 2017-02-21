@@ -25,32 +25,33 @@ public class Interpreter {
 
     {
         final List<Overload> multiplyList = new ArrayList<>();
-        multiplyList.add(new Overload<Double, Double>(Double.class, Double.class, Double.class, (o, o2) -> o * o2));
+        multiplyList.add(new Overload<>(Double.class, Double.class, Double.class, (o, o2) -> o * o2));
         this.overloads.put(Token.Type.MULTIPLY, multiplyList);
 
         final List<Overload> addList = new ArrayList<>();
-        addList.add(new Overload<Double, Double>(Double.class, Double.class, Double.class, (o, o2) -> o + o2));
-        addList.add(new Overload<String, Double>(String.class, Double.class, String.class, (o, o2) -> o + o2));
+        addList.add(new Overload<>(Double.class, Double.class, Double.class, (o, o2) -> o + o2));
+        addList.add(new Overload<>(String.class, Double.class, String.class, (o, o2) -> o + o2));
+        addList.add(new Overload<>(Double.class, String.class, String.class, (o, o2) -> o + o2));
         this.overloads.put(Token.Type.PLUS, addList);
 
         final List<Overload> subtractList = new ArrayList<>();
-        subtractList.add(new Overload<Double, Double>(Double.class, Double.class, Double.class, (o, o2) -> o - o2));
+        subtractList.add(new Overload<>(Double.class, Double.class, Double.class, (o, o2) -> o - o2));
         this.overloads.put(Token.Type.MINUS, subtractList);
 
         final List<Overload> divideList = new ArrayList<>();
-        divideList.add(new Overload<Double, Double>(Double.class, Double.class, Double.class, (o, o2) -> o / o2));
+        divideList.add(new Overload<>(Double.class, Double.class, Double.class, (o, o2) -> o / o2));
         this.overloads.put(Token.Type.DIVIDE, divideList);
 
         final List<Overload> moduloList = new ArrayList<>();
-        moduloList.add(new Overload<Double, Double>(Double.class, Double.class, Double.class, (o, o2) -> o % o2));
+        moduloList.add(new Overload<>(Double.class, Double.class, Double.class, (o, o2) -> o % o2));
         this.overloads.put(Token.Type.MODULO, moduloList);
 
         final List<Overload> powerList = new ArrayList<>();
-        powerList.add(new Overload<Double, Double>(Double.class, Double.class, Double.class, (o, o2) -> Math.pow(o, o2)));
+        powerList.add(new Overload<>(Double.class, Double.class, Double.class, (o, o2) -> Math.pow(o, o2)));
         this.overloads.put(Token.Type.POWER, powerList);
 
         final List<Overload> ltList = new ArrayList<>();
-        ltList.add(new Overload<Double, Double>(Double.class, Double.class, Boolean.class, (o, o2) -> o < o2));
+        ltList.add(new Overload<>(Double.class, Double.class, Boolean.class, (o, o2) -> o < o2));
         this.overloads.put(Token.Type.OPEN_ANGLE_BRACKET, ltList);
 
         this.javaFunctions.put("createEntity", parameters -> {
@@ -115,7 +116,7 @@ public class Interpreter {
             return null;
         }
         try {
-            MethodHandle methodHandle = this.lookup.findVirtual(Interpreter.class, "visit" + statement.getClass().getSimpleName(), MethodType.methodType(Object.class, statement.getClass()));
+            final MethodHandle methodHandle = this.lookup.findVirtual(Interpreter.class, "visit" + statement.getClass().getSimpleName(), MethodType.methodType(Object.class, statement.getClass()));
             return methodHandle.invoke(this, statement);
         } catch (Throwable throwable) {
             throwable.printStackTrace();
@@ -215,21 +216,23 @@ public class Interpreter {
     }
 
     private static final class Overload<T1, T2> {
-        private final Class<?> objectOneType, objectTwoType, returnType;
+        private final Class<T1> objectOneType;
+        private final Class<T2> objectTwoType;
+        private final Class<?> returnType;
         private final BiFunction<T1, T2, Object> transformer;
 
-        private Overload(Class<?> objectOneType, Class<?> objectTwoType, Class<?> returnType, BiFunction<T1, T2, Object> transformer) {
+        private Overload(Class<T1> objectOneType, Class<T2> objectTwoType, Class<?> returnType, BiFunction<T1, T2, Object> transformer) {
             this.objectOneType = objectOneType;
             this.objectTwoType = objectTwoType;
             this.returnType = returnType;
             this.transformer = transformer;
         }
 
-        Class<?> getObjectOneType() {
+        Class<T1> getObjectOneType() {
             return this.objectOneType;
         }
 
-        Class<?> getObjectTwoType() {
+        Class<T2> getObjectTwoType() {
             return this.objectTwoType;
         }
 

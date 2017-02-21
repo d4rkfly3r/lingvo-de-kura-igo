@@ -6,11 +6,13 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Animator {
-    private final HashMap<String, Entity> entityList = new HashMap<>();
+    private final ConcurrentHashMap<String, Entity> entityList = new ConcurrentHashMap<>();
     private final JFrame jFrame;
+    private final BufferedImage bufferedImage = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
+    private final Graphics2D g = bufferedImage.createGraphics();
 
     public Animator() {
         this.jFrame = new JFrame("Lingvo de Kuragigo");
@@ -21,16 +23,8 @@ public class Animator {
         final JPanel jPanel = new JPanel() {
             @Override
             public void paint(Graphics g) {
-//                super.paint(g);
                 g.clearRect(0, 0, 1000, 1000);
-
-//                synchronized (Animator.this.entityList) {
-                ((HashMap<String, Entity>) Animator.this.entityList.clone()).values().stream().filter(Entity::isVisible).forEach(entity -> g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), null));
-//                }
-//
-//                Animator.this.entityList.values().iterator().forEachRemaining(entity -> {
-//                    System.out.println(entity);
-//                });
+                g.drawImage(bufferedImage, 0, 0, 1000, 1000, null);
             }
         };
 
@@ -44,12 +38,12 @@ public class Animator {
     public void start() {
         new Thread(() -> {
             while (true) {
-                Animator.this.jFrame.repaint();
-                try {
-                    Thread.sleep(1000 / 5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                for (final Entity entity : entityList.values()) {
+                    if (entity.isVisible()) {
+                        g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), null);
+                    }
                 }
+                Animator.this.jFrame.repaint();
             }
         }).start();
     }
@@ -90,7 +84,7 @@ public class Animator {
         this.entityList.get(name).setVisible(visible);
     }
 
-    private static class Entity {
+    private static class Entity implements Cloneable {
         private BufferedImage bufferedImage;
         private int x, y, rotation, width, height;
         private boolean visible = false;

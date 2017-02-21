@@ -12,13 +12,14 @@ function main() {
         wait(100);
     };`
 
-    for(i=0;i<20;i=i+1){
-        createEntity("assets/grass.bmp","grass"+i);
-        resizeEntity("grass"+i, 50,50);
-        moveEntity("grass"+i, 50*i, 1000-85);
-        setEntityVisibility("grass"+i, 1);
+    for(l=0; l<5;l=l+1){
+        for(i=0;i<20;i=i+1){
+            createEntity("assets/grass.bmp",l+"grass"+i);
+            resizeEntity(l+"grass"+i, 50,50);
+            moveEntity(l+"grass"+i, 50*i, 1000-85-(50*l));
+            setEntityVisibility(l+"grass"+i, 1);
+        };
     };
-
     wait(500);
 
     moveAndRotate("player1", 0, 50, 45);
