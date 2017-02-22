@@ -44,6 +44,7 @@ public abstract class Token implements Serializable {
         COLON(Devsi.OTHER),
 
         COMMA(Devsi.OTHER),
+        PERIOD(Devsi.OTHER),
         PLUS(Devsi.SECONDARY_OPERATOR),
 
         MINUS(Devsi.SECONDARY_OPERATOR),
@@ -51,7 +52,8 @@ public abstract class Token implements Serializable {
         DIVIDE(Devsi.PRIMARY_OPERATOR),
         MODULO(Devsi.PRIMARY_OPERATOR),
         POWER(Devsi.PRIMARY_OPERATOR),
-        SQRT(Devsi.PRIMARY_OPERATOR);
+        SQRT(Devsi.PRIMARY_OPERATOR),
+        CLASS(Devsi.CONTROL);
 
 
         private final Devsi devsi;

@@ -1,48 +1,54 @@
+class TestClass {
+
 function main() {
 
     ` TODO Make initialize and assign possible here to. `
-    createEntity("assets/logo.png", "player1");
-    createEntity("assets/logo.png", "player2");
-    resizeEntity("player1", 100, 100);
-    resizeEntity("player2", 100, 100);
+    Util.createEntity("assets/logo.png", "player1");
+    Util.createEntity("assets/logo.png", "player2");
+    Util.setEntityVisibility("player1",1);
+    Util.setEntityVisibility("player2",1);
+    Util.resizeEntity("player1", 100, 100);
+    Util.resizeEntity("player2", 100, 100);
 
     `for(i=0; i<20; i=i+1){
         moveAndRotate("player1", 5*i*i, 50, 45);
         moveAndRotate("player2", 150, 150, 45);
-        wait(100);
+        sleep(100);
     };`
 
     for(l=0; l<5;l=l+1){
         for(i=0;i<20;i=i+1){
-            createEntity("assets/grass.bmp",l+"grass"+i);
-            resizeEntity(l+"grass"+i, 50,50);
-            moveEntity(l+"grass"+i, 50*i, 1000-85-(50*l));
-            setEntityVisibility(l+"grass"+i, 1);
+            Util.createEntity("assets/grass.bmp",l+"grass"+i);
+            Util.resizeEntity(l+"grass"+i, 50,50);
+            Util.moveEntity(l+"grass"+i, 50*i, 1000-85-(50*l));
+            Util.setEntityVisibility(l+"grass"+i, 1);
         };
     };
 
-    wait(500);
+    Util.sleep(500);
 
     moveAndRotate("player1", 0, 50, 45);
     moveAndRotate("player2", 150, 150, 45);
-    wait(1000);
+    Util.sleep(1000);
     moveAndRotate("player1", 0, 100, 45);
     moveAndRotate("player2", 50, 150, 45);
-    wait(1000);
+    Util.sleep(1000);
     moveAndRotate("player1", 0, 150, 45);
     moveAndRotate("player2", 0, 150, 45);
-    wait(1000);
+    Util.sleep(1000);
     moveAndRotate("player1", 50, 150, 45);
     moveAndRotate("player2", 0, 100, 45);
-    wait(1000);
+    Util.sleep(1000);
     moveAndRotate("player1", 150, 150, 45);
+
     moveAndRotate("player2", 0, 50, 45);
 
 }
 
 function moveAndRotate(string name, number x, number y, number degrees){
+    Util.moveEntity(name, x, y);
+    Util.rotateEntity(name, degrees);
 
-    moveEntity(name, x, y);
-    rotateEntity(name, degrees);
+}
 
 }

@@ -1,9 +1,11 @@
 package net.d4rkfly3r.hourofcode.kuragigo;
 
+import net.d4rkfly3r.hourofcode.kuragigo.compiler.Compiler;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.Lexer;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.SymbolToken;
 import net.d4rkfly3r.hourofcode.kuragigo.lexer.tokens.Token;
 import net.d4rkfly3r.hourofcode.kuragigo.parser.Parser;
+import net.d4rkfly3r.hourofcode.kuragigo.parser.nodes.ClassStatementNode;
 import net.d4rkfly3r.hourofcode.kuragigo.parser.nodes.CompoundStatementNode;
 
 import java.io.*;
@@ -48,7 +50,7 @@ public class Kuragigo {
     private void handleUserInput() {
         this.scriptName = null;
         System.out.println("Please enter `file`, `input`, or `quit` to signify your action.");
-        final String userInput = this.scanner.nextLine().toLowerCase();
+        final String userInput = this.scanner.nextLine().toLowerCase().trim();
         switch (userInput) {
             case "file":
                 this.runScriptFromFile();
@@ -82,10 +84,10 @@ public class Kuragigo {
 
     private void runScriptFromFile() {
         System.out.println("Please enter `raw` or `compiled`:");
-        final String userInput = this.scanner.nextLine();
+        final String userInput = this.scanner.nextLine().trim();
         if (userInput.equalsIgnoreCase("raw")) {
             System.out.println("Please enter the file name, excluding the extension:");
-            this.scriptName = this.scanner.nextLine() + ".kuragigo";
+            this.scriptName = this.scanner.nextLine().trim() + ".kuragigo";
             final File scriptFile = new File(Configuration.SCRIPTS_FOLDER_FILE, this.scriptName);
             if (!scriptFile.exists()) {
                 System.out.println("Invalid Script Name!\n");
@@ -112,7 +114,7 @@ public class Kuragigo {
 
         } else if (userInput.equalsIgnoreCase("compiled")) {
             System.out.println("Please enter the file name, excluding the extension:");
-            this.scriptName = this.scanner.nextLine() + ".kuragigo";
+            this.scriptName = this.scanner.nextLine().trim() + ".kuragigo";
             this.lastTime = System.currentTimeMillis();
             Map<String, CompoundStatementNode> tree = null;
             try (FileInputStream fis = new FileInputStream(new File(this.buildDir, this.scriptName + ".konstruu")); ObjectInputStream ois = new ObjectInputStream(fis)) {
@@ -147,11 +149,15 @@ public class Kuragigo {
                 System.out.println(token);
             }
         }
+        System.out.println(Configuration.GSON.toJson(tokens));
+
         Parser parser = new Parser(tokens);
-        final Map<String, CompoundStatementNode> tree = parser.parse();
-        System.out.println("Compile and parsing took: " + (System.currentTimeMillis() - this.lastTime) + " milliseconds.");
-        this.saveCompiled(tree);
-        this.handleTree(tree);
+        final Map<String, ClassStatementNode> tree = parser.parse();
+        System.out.println("Pre-Compile and parsing took: " + (System.currentTimeMillis() - this.lastTime) + " milliseconds.");
+//        this.saveCompiled(tree);
+//        this.handleTree(tree);
+        Compiler compiler = new Compiler(tree, this.buildDir, this.scriptName);
+        compiler.compile();
     }
 
     private void handleTree(Map<String, CompoundStatementNode> tree) {

@@ -29,7 +29,7 @@ public class Parser {
     void syntaxError(final String cause) {
         String stringBuilder = "\n" +
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + "\n" +
-                this.tokens[this.tokenIndex - 1] +
+                this.tokens[this.tokenIndex - 1] + "\n" +
                 "Error at token: " + this.currentToken + "\n" +
                 "Cause: " + (cause == null ? "Unknown!" : cause) + "\n" +
                 "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + "\n";
@@ -55,16 +55,30 @@ public class Parser {
         return this.tokens[this.tokenIndex + 1];
     }
 
-    public Map<String, CompoundStatementNode> parse() {
-        List<CompoundStatementNode> functions = new ArrayList<>();
+    public Map<String, ClassStatementNode> parse() {
+        List<ClassStatementNode> classes = new ArrayList<>();
         while (this.currentToken.getTokenType() != Token.Type.EOF) {
-            functions.add(this.block());
+            classes.add(this.clazz());
         }
         if (this.currentToken.getTokenType() != Token.Type.EOF) {
             this.syntaxError("Expected end of file!");
         }
+//
+        return classes.stream().collect(Collectors.toMap(ClassStatementNode::getClassName, classStatementNode -> classStatementNode));
+    }
 
-        return functions.stream().collect(Collectors.toMap(compoundStatementNode -> compoundStatementNode.getFunctionName(), compoundStatementNode -> compoundStatementNode));
+    public ClassStatementNode clazz() {
+        this.intake(Token.Type.CLASS);
+        String className = this.variable().getName();
+        this.intake(Token.Type.OPEN_CURLY_BRACE);
+
+        ArrayList<CompoundStatementNode> functions = new ArrayList<>();
+        while (this.currentToken.getTokenType() == Token.Type.FUNCTION) {
+            functions.add(this.block());
+        }
+        this.intake(Token.Type.CLOSE_CURLY_BRACE);
+        //return functions.stream().collect(Collectors.toMap(compoundStatementNode -> compoundStatementNode.getFunctionName(), compoundStatementNode -> compoundStatementNode));
+        return new ClassStatementNode(className, functions.stream().collect(Collectors.toMap(CompoundStatementNode::getFunctionName, compoundStatementNode -> compoundStatementNode)));
     }
 
     private CompoundStatementNode block() {
@@ -113,6 +127,12 @@ public class Parser {
         this.intake(Token.Type.FUNCTION);
         VariableNode variableNode = this.variable();
         String functionName = variableNode.getName();
+        System.out.println("1: " + this.currentToken);
+//        if (this.currentToken.getTokenType() == Token.Type.PERIOD) {
+//            System.out.println("Y");
+//            this.intake(Token.Type.PERIOD);
+//            System.out.println(this.variable());
+//        }
         this.intake(Token.Type.OPEN_PARENTHESIS);
         ParameterNode parameterNode = this.parameters();
         this.intake(Token.Type.OPEN_CURLY_BRACE);
@@ -137,13 +157,14 @@ public class Parser {
     }
 
     private Statement statement() {
+        System.out.println("2: " + this.currentToken);
         switch (this.currentToken.getTokenType()) {
             case FUNCTION:
                 return this.compoundStatement();
             case IDENTIFICATION:
                 if (this.peek().getTokenType() == Token.Type.ASSIGN) {
                     return this.assignmentStatement();
-                } else if (this.peek().getTokenType() == Token.Type.OPEN_PARENTHESIS) {
+                } else if (this.peek().getTokenType() == Token.Type.OPEN_PARENTHESIS || this.peek().getTokenType() == Token.Type.PERIOD) {
                     return this.functionCallStatement();
                 }
             case FOR:
@@ -182,7 +203,11 @@ public class Parser {
     }
 
     private FunctionCallNode functionCallStatement() {
-        final String functionName = this.variable().getName();
+        String functionName = this.variable().getName();
+        if (this.currentToken.getTokenType() == Token.Type.PERIOD) {
+            this.intake(Token.Type.PERIOD);
+            functionName += "." + this.variable().getName();
+        }
         List<Statement> parameters = new ArrayList<>();
         this.intake(Token.Type.OPEN_PARENTHESIS);
         if (this.currentToken.getTokenType() != Token.Type.CLOSE_PARENTHESIS) {

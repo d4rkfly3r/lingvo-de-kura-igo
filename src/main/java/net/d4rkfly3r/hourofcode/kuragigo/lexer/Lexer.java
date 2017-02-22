@@ -14,6 +14,7 @@ public class Lexer {
         RESERVED_KEYWORDS.put("string", new SymbolToken(Token.Type.STRING));
         RESERVED_KEYWORDS.put("sqrt", new SymbolToken(Token.Type.SQRT));
         RESERVED_KEYWORDS.put("for", new SymbolToken(Token.Type.FOR));
+        RESERVED_KEYWORDS.put("class", new SymbolToken(Token.Type.CLASS));
     }
 
     private final String inputText;
@@ -88,6 +89,9 @@ public class Lexer {
                 case ';':
                     this.advance();
                     return new SymbolToken(Token.Type.SEMICOLON);
+                case '.':
+                    this.advance();
+                    return new SymbolToken(Token.Type.PERIOD);
                 case '+':
                     this.advance();
                     return new OperatorToken(Token.Type.PLUS);

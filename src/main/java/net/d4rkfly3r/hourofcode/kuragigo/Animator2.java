@@ -8,13 +8,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Animator {
+public class Animator2 {
     private final ConcurrentHashMap<String, Entity> entityList = new ConcurrentHashMap<>();
     private final JFrame jFrame;
     private final BufferedImage bufferedImage = new BufferedImage(1000, 1000, BufferedImage.TYPE_INT_ARGB);
     private final Graphics2D g = bufferedImage.createGraphics();
 
-    public Animator() {
+    public Animator2() {
         this.jFrame = new JFrame("Lingvo de Kuragigo");
         this.jFrame.setSize(1000, 1000);
         this.jFrame.setLocationRelativeTo(null);
@@ -43,7 +43,7 @@ public class Animator {
                         g.drawImage(entity.getBufferedImage(), entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight(), null);
                     }
                 }
-                Animator.this.jFrame.repaint();
+                Animator2.this.jFrame.repaint();
             }
         }).start();
     }

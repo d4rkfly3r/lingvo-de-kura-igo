@@ -21,7 +21,7 @@ public class Interpreter {
     private final Map<String, CompoundStatementNode> functions = new HashMap<>();
     private final Map<String, Function<Object[], Object>> javaFunctions = new HashMap<>();
     private HashMap<String, Object> currentScope = new HashMap<>();
-    private Animator animator;
+    private Animator2 animator;
     private boolean running = true;
 
     {
@@ -93,7 +93,7 @@ public class Interpreter {
     }
 
     public Interpreter(final Map<String, CompoundStatementNode> functions) {
-        this.animator = new Animator();
+        this.animator = new Animator2();
         this.functions.putAll(functions);
         this.lookup = MethodHandles.lookup().in(Interpreter.class);
     }
