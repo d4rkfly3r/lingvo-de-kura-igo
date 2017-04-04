@@ -74,7 +74,7 @@ public class Animator {
         this.jFrame.repaint();
     }
 
-    public void resizeEntity(String name, int width, int height) {
+    public void resizeEntity(final String name, final int width, final int height) {
         this.entityList.get(name).setWidth(width);
         this.entityList.get(name).setHeight(height);
         this.jFrame.repaint();

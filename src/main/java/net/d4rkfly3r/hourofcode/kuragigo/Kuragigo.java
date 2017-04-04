@@ -154,12 +154,12 @@ public class Kuragigo {
         this.handleTree(tree);
     }
 
-    private void handleTree(Map<String, CompoundStatementNode> tree) {
+    private void handleTree(final Map<String, CompoundStatementNode> tree) {
         Interpreter interpreter = new Interpreter(tree);
         interpreter.interpret();
     }
 
-    private void saveCompiled(Map<String, CompoundStatementNode> tree) {
+    private void saveCompiled(final Map<String, CompoundStatementNode> tree) {
         if (this.scriptName != null) {
             try (FileOutputStream fos = new FileOutputStream(new File(this.buildDir, this.scriptName + ".konstruu")); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
                 oos.writeObject(tree);
